@@ -11,7 +11,7 @@ class StatsTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function may_get_stats()
+    public function may_get_empty_stats()
     {
         $this->getJson('/stats')
             ->assertOk()
@@ -20,23 +20,27 @@ class StatsTest extends TestCase
                 'count_human_dna' => '0',
                 'ratio' => '0.0'
             ]);
+    }
 
+    /** @test */
+    public function may_get_some_stats()
+    {
         DNATest::factory()
             ->mutant()
-            ->count(22)
+            ->count(40)
             ->create();
 
         DNATest::factory()
             ->human()
-            ->count(30)
+            ->count(100)
             ->create();
 
         $this->getJson('/stats')
             ->assertOk()
             ->assertJson([
-                'count_mutant_dna' => '22',
-                'count_human_dna' => '30',
-                'ratio' => '0.73'
+                'count_mutant_dna' => '40',
+                'count_human_dna' => '100',
+                'ratio' => '0.4'
             ]);
     }
 }
