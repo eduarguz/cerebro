@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\MutantController;
+use App\Http\Controllers\StatsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,4 +15,5 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('/mutant', [\App\Http\Controllers\MutantController::class, 'store']);
+Route::post('/mutant', [MutantController::class, 'store']);
+Route::get('/stats', [StatsController::class, 'index']);
