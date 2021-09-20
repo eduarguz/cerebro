@@ -3,10 +3,13 @@
 namespace Tests\Feature;
 
 use App\Models\DNATest;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class CheckMutantTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function mutantsDataSet()
     {
         return [
@@ -62,10 +65,14 @@ class CheckMutantTest extends TestCase
      */
     public function test_is_mutant(...$dna)
     {
-        $initialCount = DNATest::count();
-        $this->post('/mutant', ["dna" => $dna])->assertOk();
-        $this->assertEquals($initialCount++, DNATest::count());
-        $this->assertEquals($initialCount++, DNATest::mutants()->count());
+        $initialCount = DNATest::query()->count();
+        $initialMutantsCount = DNATest::query()->isMutant()->count();
+
+        $response = $this->post('/mutant', ["dna" => $dna]);
+
+        $response->assertOk();
+        $this->assertEquals(++$initialCount, DNATest::query()->count());
+        $this->assertEquals(++$initialMutantsCount, DNATest::query()->isMutant()->count());
     }
 
     public function notMutantsDataSet()
@@ -131,10 +138,12 @@ class CheckMutantTest extends TestCase
     public function test_is_not_mutant($dna)
     {
         $initialCount = DNATest::count();
+        $initialHumansCount = DNATest::isHuman()->count();
 
-        $this->post('/mutant', ["dna" => $dna])->assertForbidden();
-        $this->assertEquals($initialCount++, DNATest::count());
-        $this->assertEquals($initialCount++, DNATest::humans()->count());
+        $response = $this->post('/mutant', ["dna" => $dna]);
+
+        $response->assertForbidden();
+        $this->assertEquals(++$initialCount, DNATest::query()->count());
+        $this->assertEquals(++$initialHumansCount, DNATest::query()->isHuman()->count());
     }
-
 }
