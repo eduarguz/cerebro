@@ -2,63 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\DNATest;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
 class MutantController extends Controller
 {
-    public function store(Request $request)
+    public function store(Request $request): \Illuminate\Http\Response
     {
-        $asLines = collect($request->input('dna'));
-        $asArray = $asLines->map(fn($line) => collect(str_split($line)));
+        $dna = $request->input('dna');
+        abort_if(!is_array($dna), Response::HTTP_FORBIDDEN);
 
-        $totalInRows = $this->findSequences($asArray);
+        try {
+            $dna = new DNATest($request->input('dna'));
 
-        $transposeDNA = $asArray->transpose();
-        $totalInColumns = $this->findSequences($transposeDNA);
-
-        $diagonalRtl = $this->buildDiagonals($asArray);
-        $totalInDiagonalRtl = $this->findSequences($diagonalRtl);
-
-        $reversed = $asArray->map->reverse()->map->values();
-        $diagonalLtr = $this->buildDiagonals($reversed);
-        $totalInDiagonalLtr = $this->findSequences($diagonalLtr);
-
-        if (($totalInRows + $totalInColumns + $totalInDiagonalRtl + $totalInDiagonalLtr) > 1) {
-            return response('');
+            $status = $dna->passes()? Response::HTTP_OK : Response::HTTP_FORBIDDEN;
+        } catch (\LogicException $ex) {
+            $status = Response::HTTP_FORBIDDEN;
         }
 
-        return response('', Response::HTTP_FORBIDDEN);
-    }
-
-    private function buildDiagonals(\Illuminate\Support\Collection $asArray)
-    {
-        if ($asArray->isEmpty()) {
-            return new Collection();
-        }
-
-        $length = $asArray->count();
-        $diags = [];
-
-        for ($i = 0; $i < $length; $i++) {
-            for ($j = 0; $j < $length; $j++) {
-                $diags[$i + $j][] = $asArray[$i][$j];
-            }
-        }
-
-        return collect($diags)->map(fn($items) => collect($items));
-    }
-
-    private function findSequences(Collection $asArray)
-    {
-        return $asArray
-            ->map
-            ->join('')
-            ->sum(function ($line) {
-                return collect(['AAAA', 'TTTT', 'GGGG', 'CCCC'])
-                    ->sum(fn($sequence) => Str::substrCount($line, $sequence));
-            });
+        return response('', $status);
     }
 }
