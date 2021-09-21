@@ -3,19 +3,18 @@
 namespace App;
 
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 
 class MutantTester
 {
     /**
-     * @var \Illuminate\Support\Collection
+     * @var \App\DNACollection
      */
-    private Collection $dna;
+    private DNACollection $dna;
 
     /**
-     * @var array|string[]
+     * @var int
      */
-    private array $sequences = ['AAAA', 'TTTT', 'GGGG', 'CCCC'];
+    private int $minOccurrences = 2;
 
     /**
      * @param $dna
@@ -36,24 +35,24 @@ class MutantTester
 
         $dna = collect($dna);
 
-        if ($dna->isEmpty()){
+        if ($dna->isEmpty()) {
             throw new \LogicException('DNA should not be empty');
         }
 
         $firstItem = $dna->first();
 
-        if (!is_string($firstItem)){
+        if (!is_string($firstItem)) {
             throw new \LogicException('DNA should only contain string data');
         }
 
         $expectedLength = strlen($firstItem);
 
-        if ($expectedLength < 4){
+        if ($expectedLength < 4) {
             throw new \LogicException('Too little data to analyze DNA');
         }
 
-        $dna->each(function ($row) use ($expectedLength){
-            if (!is_string($row)){
+        $dna->each(function ($row) use ($expectedLength) {
+            if (!is_string($row)) {
                 throw new \LogicException('DNA should only contain string data');
             }
 
@@ -62,7 +61,7 @@ class MutantTester
             }
         });
 
-        $this->dna = $dna->map(fn($line) => collect(str_split($line)));
+        $this->dna = new DNACollection($dna->map(fn($line) => collect(str_split($line))));
     }
 
     /**
@@ -70,14 +69,36 @@ class MutantTester
      */
     public function isMutant(): bool
     {
-        $totalInRows = $this->checkRows();
-        $totalInColumns = $this->checkColumns();
-        $totalInDiagonalsFromRight = $this->checkDiagonalsFromRight();
-        $totalInDiagonalsFromLeft = $this->checkDiagonalsFromLeft();
+        $total = $this->checkRows();
 
-        $sum = $totalInRows + $totalInColumns + $totalInDiagonalsFromRight + $totalInDiagonalsFromLeft;
+        if ($this->isEnough($total)) {
+            return true;
+        }
 
-        return $sum > 1;
+        $total += $this->checkColumns();
+
+        if ($this->isEnough($total)) {
+            return true;
+        }
+
+        $total += $this->checkDiagonalsFromRight();
+
+        if ($this->isEnough($total)) {
+            return true;
+        }
+
+        $total += $this->checkDiagonalsFromLeft();
+
+        return $this->isEnough($total);
+    }
+
+    /**
+     * @param $total
+     * @return bool
+     */
+    private function isEnough($total): bool
+    {
+        return $total >= $this->minOccurrences;
     }
 
     /**
@@ -97,17 +118,13 @@ class MutantTester
     }
 
     /**
-     * @param \Illuminate\Support\Collection $collection
+     * @param \App\DNACollection $collection
+     * @param int $sumUntil
      * @return int
      */
-    private function check(Collection $collection): int
+    private function check(DNACollection $collection, int $sumUntil = 2): int
     {
-        return $collection
-            ->map
-            ->join('')
-            ->sum(function ($line) {
-                return collect($this->sequences)->sum(fn($sequence) => Str::substrCount($line, $sequence));
-            });
+        return $collection->map->join('')->sumSequencesUntil($sumUntil);
     }
 
     /**
@@ -123,7 +140,7 @@ class MutantTester
      */
     private function checkDiagonalsFromRight(): int
     {
-        return $this->check($this->buildDiagonals($this->dna));
+        return $this->check($this->dna->toDiagonals());
     }
 
     /**
@@ -133,7 +150,7 @@ class MutantTester
     {
         $reversed = $this->dna->map->reverse()->map->values();
 
-        return $this->check($this->buildDiagonals($reversed));
+        return $this->check($reversed->toDiagonals());
     }
 
     /**
