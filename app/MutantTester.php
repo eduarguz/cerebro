@@ -5,19 +5,35 @@ namespace App;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
-class DNATest
+class MutantTester
 {
+    /**
+     * @var \Illuminate\Support\Collection
+     */
     private Collection $dna;
 
+    /**
+     * @var array|string[]
+     */
     private array $sequences = ['AAAA', 'TTTT', 'GGGG', 'CCCC'];
 
-    public function __construct(array $dna)
+    /**
+     * @param $dna
+     */
+    public function __construct($dna)
     {
         $this->setDNA($dna);
     }
 
-    private function setDNA(array $dna): void
+    /**
+     * @param $dna
+     */
+    private function setDNA($dna): void
     {
+        if (!is_array($dna)) {
+            throw new \LogicException('DNA should contain array of strings');
+        }
+
         $dna = collect($dna);
 
         if ($dna->isEmpty()){
@@ -49,7 +65,10 @@ class DNATest
         $this->dna = $dna->map(fn($line) => collect(str_split($line)));
     }
 
-    public function passes(): bool
+    /**
+     * @return bool
+     */
+    public function isMutant(): bool
     {
         $totalInRows = $this->checkRows();
         $totalInColumns = $this->checkColumns();
@@ -61,11 +80,26 @@ class DNATest
         return $sum > 1;
     }
 
+    /**
+     * @return bool
+     */
+    public function result(): bool
+    {
+        return $this->isMutant();
+    }
+
+    /**
+     * @return int
+     */
     private function checkRows(): int
     {
         return $this->check($this->dna);
     }
 
+    /**
+     * @param \Illuminate\Support\Collection $collection
+     * @return int
+     */
     private function check(Collection $collection): int
     {
         return $collection
@@ -76,16 +110,25 @@ class DNATest
             });
     }
 
+    /**
+     * @return int
+     */
     private function checkColumns(): int
     {
         return $this->check($this->dna->transpose());
     }
 
+    /**
+     * @return int
+     */
     private function checkDiagonalsFromRight(): int
     {
         return $this->check($this->buildDiagonals($this->dna));
     }
 
+    /**
+     * @return int
+     */
     private function checkDiagonalsFromLeft(): int
     {
         $reversed = $this->dna->map->reverse()->map->values();
@@ -93,6 +136,10 @@ class DNATest
         return $this->check($this->buildDiagonals($reversed));
     }
 
+    /**
+     * @param \Illuminate\Support\Collection $collection
+     * @return \Illuminate\Support\Collection
+     */
     private function buildDiagonals(Collection $collection): Collection
     {
         if ($collection->isEmpty()) {

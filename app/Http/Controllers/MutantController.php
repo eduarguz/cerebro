@@ -2,33 +2,45 @@
 
 namespace App\Http\Controllers;
 
-use App\DNATest;
+use App\Models\DNATest;
+use App\MutantTester;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class MutantController extends Controller
 {
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\Response
+     */
     public function store(Request $request): \Illuminate\Http\Response
     {
-        $dna = $request->input('dna');
-        $dnaModel = \App\Models\DNATest::create(['dna' => $dna]);
-
-        abort_if(!is_array($dna), Response::HTTP_FORBIDDEN);
+        $record = DNATest::createNew($request->input('dna'));
 
         try {
-            $dna = new DNATest($request->input('dna'));
-            if ($dna->passes()) {
-                $dnaModel->is_mutant = true;
-                $dnaModel->save();
-                $status = Response::HTTP_OK;
-            } else {
-                $status = Response::HTTP_FORBIDDEN;
-            }
-
+            $mutantTest = new MutantTester($request->input('dna'));
         } catch (\LogicException $ex) {
-            $status = Response::HTTP_FORBIDDEN;
+            return $this->responseAsHuman();
         }
 
-        return response('', $status);
+        $record->updateIsMutant($mutantTest->result());
+
+        return $record->isMutant() ? $this->responseAsMutant() : $this->responseAsHuman();
+    }
+
+    /**
+     * @return \Illuminate\Http\Response
+     */
+    private function responseAsMutant(): \Illuminate\Http\Response
+    {
+        return response('', Response::HTTP_OK);
+    }
+
+    /**
+     * @return \Illuminate\Http\Response
+     */
+    private function responseAsHuman(): \Illuminate\Http\Response
+    {
+        return response('', Response::HTTP_FORBIDDEN);
     }
 }
