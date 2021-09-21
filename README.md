@@ -4,6 +4,8 @@
 
 This project is the solution to a technical challenge proposed by the mercadolibre team.
 
+Live endpoint https://cerebro.ditecnologia.com/stats
+
 ## About Cerebro
 
 This project is developed using [Laravel](https://laravel.com/) (Laravel is a web application framework for php). For this reason, from the beginning it comes with many files that facilitate the development of web applications.
@@ -85,14 +87,31 @@ Your server will be running locally at `http://127.0.0.1:8000`
 
 You can use any http request maker, in this case we will use [curl](https://curl.se/)
 
-Remember to change the `{BASE_URL}`
+Remember to change the `BASE_URL`
 - Local testing `http://127.0.0.1:8000`
-- Live endpoint `meli.casshi.com`
+- Live endpoint `https://cerebro.ditecnologia.com/`
 
 **Check Mutant DNA**
 
 ```
-curl --location --request POST 'http://127.0.0.1:8000/mutant' \
+curl --location --request POST 'https://cerebro.ditecnologia.com/mutant' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "dna": [
+        "ATGCGA",
+        "CAGTGC",
+        "TTATGT",
+        "AGAAGG",
+        "CCCCTA",
+        "TCACTG"
+    ]
+}'
+```
+
+**Check Human DNA**
+
+```
+curl --location --request POST 'https://cerebro.ditecnologia.com/mutant' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "dna": [
@@ -109,6 +128,22 @@ curl --location --request POST 'http://127.0.0.1:8000/mutant' \
 **Get Stats**
 
 ```
-curl --location --request GET 'http://127.0.0.1:8000/stats'
+curl --location --request GET 'https://cerebro.ditecnologia.com/stats'
 ```
 
+## Deployment 
+
+This project is live and alive thanks to https://forge.laravel.com/
+
+Forge is a service that helps with the creation and maintenance of the AWS server that supports this application.
+
+The project is running on:
+
+- AWS Server
+- PHP 7.4
+- Ngnx
+- Sqlite 
+
+-----
+
+By: Eduardo Guzmán Hernández 
