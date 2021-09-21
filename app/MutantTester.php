@@ -2,8 +2,6 @@
 
 namespace App;
 
-use Illuminate\Support\Collection;
-
 class MutantTester
 {
     /**
