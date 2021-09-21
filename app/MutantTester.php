@@ -152,26 +152,4 @@ class MutantTester
 
         return $this->check($reversed->toDiagonals());
     }
-
-    /**
-     * @param \Illuminate\Support\Collection $collection
-     * @return \Illuminate\Support\Collection
-     */
-    private function buildDiagonals(Collection $collection): Collection
-    {
-        if ($collection->isEmpty()) {
-            return new Collection();
-        }
-
-        $length = $collection->count();
-        $diags = [];
-
-        for ($i = 0; $i < $length; $i++) {
-            for ($j = 0; $j < $length; $j++) {
-                $diags[$i + $j][] = $collection[$i][$j];
-            }
-        }
-
-        return collect($diags)->map(fn($items) => collect($items));
-    }
 }

@@ -124,10 +124,23 @@ class CheckMutantTest extends TestCase
             'not array' => [12356],
             'null' => [null],
             'empty string' => [''],
-            'empty array' => [[]],
+            'empty array' => [[
+                //
+            ]],
+            'empty arrays' => [[
+                []
+            ]],
+            'mixed types' => [[
+                "ATGCGA",
+                ["B"],
+                "ATGCGA",
+                ["B"],
+            ]],
             'bad lengths' => [[
-                "A",
-                "BB",
+                "ATGCGA",
+                "ATGCAAG",
+                "TTTCGA",
+                "CTGCGA",
             ]],
         ];
     }

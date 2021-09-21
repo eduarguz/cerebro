@@ -38,10 +38,6 @@ class DNACollection extends Collection
      */
     public function toDiagonals(): DNACollection
     {
-        if ($this->isEmpty()) {
-            return new static();
-        }
-
         $length = $this->count();
         $diags = [];
 
