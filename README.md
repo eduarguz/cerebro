@@ -1,64 +1,114 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+<p align="center"><img src="https://mir-s3-cdn-cf.behance.net/project_modules/disp/881e9519707461.562deefac8827.jpg" width="400"></p>
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Cerebro
 
-## About Laravel
+This project is the solution to a technical challenge proposed by the mercadolibre team.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## About Cerebro
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+This project is developed using [Laravel](https://laravel.com/) (Laravel is a web application framework for php). For this reason, from the beginning it comes with many files that facilitate the development of web applications.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## How to read this code
 
-## Learning Laravel
+In order to check if a DNA is mutant DNA we will be using:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+**API**
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- [routes/api.php](./routes/api.php) 
+  - Defines `/mutant` and `/stats` api routes.
 
-## Laravel Sponsors
+- [app/Http/Controllers/MutantController.php](app/Http/Controllers/MutantController.php)
+  - Handles incoming HTTP Requests
+  - Creates DNA test record in database
+  - Calls our `MutantTester` to see if the DNA is mutant DNA
+  - Responds with http response
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+- [app/MutantTester.php](app/MutantTester.php) 
+  - Receives DNA Dataset
+  - Performs early validations for non standard DNA structures
+  - Validates ocurrences of known sequences by rows, columns and diagonals
 
-### Premium Partners
+**Tests**
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[CMS Max](https://www.cmsmax.com/)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
+- [tests/Feature/CheckMutantTest.php](./tests/Feature/CheckMutantTest.php)
+  - Feature tests for `/mutant` endpoint
 
-## Contributing
+- [tests/Feature/StatsTest.php](./tests/Feature/StatsTest.php)
+  - Feature tests for `/stats`
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- [coverage/phpunit/html/index.html](./coverage/phpunit/html/index.html)
+  - Html generated report for test coverage.
+  - Open the file in your browser to see the report
+  - TLDR; 100% Coverage*
+  - *Some unused framework files were ignored.
 
-## Code of Conduct
+## Installing
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+You need to have a web server with php 7.4
 
-## Security Vulnerabilities
+There are many options to achieve this:
+- The easiest way is [Laravel Valet](https://laravel.com/docs/8.x/valet#introduction)
+- You may use [Homestead](https://laravel.com/docs/8.x/homestead#introduction)
+- Or [Laragon](https://laragon.org/)
+- ...
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+**Clone this repo**
 
-## License
+```
+git clone https://github.com/eduarguz/cerebro
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+**Install dependencies**
+
+```
+composer install
+```
+
+**Create environment**
+
+```
+cp .env.example .env
+```
+
+Defaults are just fine for testing but you may tweak any change you need.
+
+**Run local server**
+
+```
+php artisan serve
+```
+
+Your server will be running locally at `http://127.0.0.1:8000`
+
+
+## Using this API
+
+You can use any http request maker, in this case we will use [curl](https://curl.se/)
+
+Remember to change the `{BASE_URL}`
+- Local testing `http://127.0.0.1:8000`
+- Live endpoint `meli.casshi.com`
+
+**Check Mutant DNA**
+
+```
+curl --location --request POST 'http://127.0.0.1:8000/mutant' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "dna": [
+        "AAGCCA",
+        "CAGTGC",
+        "TTAAGT",
+        "CGTAGG",
+        "CCTCTA",
+        "TCACTC"
+    ]
+}'
+```
+
+**Get Stats**
+
+```
+curl --location --request GET 'http://127.0.0.1:8000/stats'
+```
+
